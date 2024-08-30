@@ -1,8 +1,37 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import 'aframe';
 //import 'ar.js';
 
 const ModelViewer = () => {
+
+  useEffect(() => {
+    // Automatically request fullscreen mode when the component mounts
+    const enterFullscreen = () => {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      } else if (document.documentElement.webkitRequestFullscreen) { // Safari
+        document.documentElement.webkitRequestFullscreen();
+      } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
+        document.documentElement.msRequestFullscreen();
+      }
+    };
+
+    // Enter fullscreen mode if not already in fullscreen
+    if (document.fullscreenEnabled && !document.fullscreenElement) {
+      enterFullscreen();
+    }
+
+    // Request camera access for AR.js when the scene is loaded
+    const sceneEl = document.querySelector('a-scene');
+    if (sceneEl) {
+      sceneEl.addEventListener('loaded', () => {
+        if (document.fullscreenEnabled && !document.fullscreenElement) {
+          enterFullscreen();
+        }
+      });
+    }
+  }, []);
+
   const handleTouch = () => {
     alert('Encontraste 10% de descuento!');
   };
