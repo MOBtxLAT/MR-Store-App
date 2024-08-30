@@ -1,16 +1,13 @@
 import React, { useEffect } from 'react';
 import 'aframe';
-import 'aframe-ar';
 
 const ModelViewer = () => {
 
   useEffect(() => {
     const requestCameraPermission = () => {
-      // For iOS and Safari
       if (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
         navigator.mediaDevices.getUserMedia({ video: true })
           .then((stream) => {
-            // Success: camera access granted
             console.log('Camera access granted.');
           })
           .catch((error) => {
@@ -18,7 +15,6 @@ const ModelViewer = () => {
             alert('Please enable camera access in your device settings.');
           });
       } else {
-        // For other browsers like Chrome on Android
         if (navigator.permissions) {
           navigator.permissions.query({ name: 'camera' }).then((permission) => {
             if (permission.state === 'granted') {
@@ -37,7 +33,6 @@ const ModelViewer = () => {
             }
           });
         } else {
-          // Fallback for older browsers
           navigator.mediaDevices.getUserMedia({ video: true })
             .then((stream) => {
               console.log('Camera access granted.');
@@ -54,11 +49,11 @@ const ModelViewer = () => {
       const docEl = document.documentElement;
       if (docEl.requestFullscreen) {
         docEl.requestFullscreen();
-      } else if (docEl.webkitRequestFullscreen) { // Safari on iOS
+      } else if (docEl.webkitRequestFullscreen) {
         docEl.webkitRequestFullscreen();
-      } else if (docEl.msRequestFullscreen) { // IE/Edge
+      } else if (docEl.msRequestFullscreen) {
         docEl.msRequestFullscreen();
-      } else if (docEl.mozRequestFullScreen) { // Firefox on Android/Windows
+      } else if (docEl.mozRequestFullScreen) {
         docEl.mozRequestFullScreen();
       }
     };
@@ -66,15 +61,12 @@ const ModelViewer = () => {
     const sceneEl = document.querySelector('a-scene');
     if (sceneEl) {
       sceneEl.addEventListener('loaded', () => {
-        // Request camera permission
         requestCameraPermission();
-        // Request fullscreen when the scene is loaded
         if (document.fullscreenEnabled && !document.fullscreenElement) {
           enterFullscreen();
         }
       });
 
-      // Re-request fullscreen on user interaction if it fails initially
       sceneEl.addEventListener('click', () => {
         if (!document.fullscreenElement) {
           enterFullscreen();
@@ -91,10 +83,9 @@ const ModelViewer = () => {
     <a-scene 
       embedded 
       arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;" 
-      vr-mode-ui="enabled: false;" // Disable VR mode UI
-      renderer="logarithmicDepthBuffer: true; antialias: true;" // Improve rendering quality
-      device-orientation-permission-ui="enabled: true"> // Ensure permissions are asked
-
+      vr-mode-ui="enabled: false;" 
+      renderer="logarithmicDepthBuffer: true; antialias: true;" 
+      device-orientation-permission-ui="enabled: true">
       <a-assets>
         <a-asset-item id="model" src="/models/cubo.glb"></a-asset-item>
       </a-assets>
