@@ -4,69 +4,45 @@ import 'aframe';
 const ModelViewer = () => {
 
   useEffect(() => {
+    // Ensure camera permissions are requested
     const requestCameraPermission = () => {
-      if (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ video: true })
           .then((stream) => {
             console.log('Camera access granted.');
           })
           .catch((error) => {
             console.error('Error accessing camera:', error);
-            alert('Please enable camera access in your device settings.');
+            alert('Camera access is required to view the AR experience. Please enable it in your browser settings.');
           });
       } else {
-        if (navigator.permissions) {
-          navigator.permissions.query({ name: 'camera' }).then((permission) => {
-            if (permission.state === 'granted') {
-              console.log('Camera permission already granted.');
-            } else if (permission.state === 'prompt') {
-              navigator.mediaDevices.getUserMedia({ video: true })
-                .then((stream) => {
-                  console.log('Camera access granted.');
-                })
-                .catch((error) => {
-                  console.error('Error accessing camera:', error);
-                  alert('Please enable camera access in your device settings.');
-                });
-            } else {
-              alert('Camera access denied. Please allow camera access in your browser settings.');
-            }
-          });
-        } else {
-          navigator.mediaDevices.getUserMedia({ video: true })
-            .then((stream) => {
-              console.log('Camera access granted.');
-            })
-            .catch((error) => {
-              console.error('Error accessing camera:', error);
-              alert('Please enable camera access in your device settings.');
-            });
-        }
+        alert('Your device does not support camera access.');
       }
     };
 
+    // Enter fullscreen mode for better AR experience
     const enterFullscreen = () => {
       const docEl = document.documentElement;
       if (docEl.requestFullscreen) {
         docEl.requestFullscreen();
-      } else if (docEl.webkitRequestFullscreen) {
+      } else if (docEl.webkitRequestFullscreen) { // Safari on iOS
         docEl.webkitRequestFullscreen();
-      } else if (docEl.msRequestFullscreen) {
+      } else if (docEl.msRequestFullscreen) { // IE/Edge
         docEl.msRequestFullscreen();
-      } else if (docEl.mozRequestFullScreen) {
+      } else if (docEl.mozRequestFullScreen) { // Firefox on Android
         docEl.mozRequestFullScreen();
       }
     };
 
+    // Trigger camera permission request and fullscreen mode when the scene loads
     const sceneEl = document.querySelector('a-scene');
     if (sceneEl) {
       sceneEl.addEventListener('loaded', () => {
-        requestCameraPermission();
-        if (document.fullscreenEnabled && !document.fullscreenElement) {
-          enterFullscreen();
-        }
+        requestCameraPermission(); // Ask for camera access
+        enterFullscreen(); // Attempt to enter fullscreen mode
       });
 
+      // Ensure camera access is re-requested on user interaction if needed
       sceneEl.addEventListener('click', () => {
         if (!document.fullscreenElement) {
           enterFullscreen();
@@ -82,10 +58,10 @@ const ModelViewer = () => {
   return (
     <a-scene 
       embedded 
-      arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;" 
-      vr-mode-ui="enabled: false;" 
-      renderer="logarithmicDepthBuffer: true; antialias: true;" 
-      device-orientation-permission-ui="enabled: true">
+      arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: true;" 
+      vr-mode-ui="enabled: false;" // Disable VR mode UI
+      device-orientation-permission-ui="enabled: true"> 
+
       <a-assets>
         <a-asset-item id="model" src="/models/cubo.glb"></a-asset-item>
       </a-assets>
