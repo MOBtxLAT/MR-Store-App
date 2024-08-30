@@ -3,29 +3,26 @@ import 'aframe';
 //import 'ar.js';
 
 const ModelViewer = () => {
-
   useEffect(() => {
-    // Automatically request fullscreen mode when the component mounts
     const enterFullscreen = () => {
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-      } else if (document.documentElement.webkitRequestFullscreen) { // Safari
-        document.documentElement.webkitRequestFullscreen();
-      } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
-        document.documentElement.msRequestFullscreen();
+      const docEl = document.documentElement;
+      if (docEl.requestFullscreen) {
+        docEl.requestFullscreen();
+      } else if (docEl.webkitRequestFullscreen) { // Safari on iOS
+        docEl.webkitRequestFullscreen();
+      } else if (docEl.msRequestFullscreen) { // IE/Edge
+        docEl.msRequestFullscreen();
       }
     };
 
-    // Enter fullscreen mode if not already in fullscreen
-    if (document.fullscreenEnabled && !document.fullscreenElement) {
-      enterFullscreen();
-    }
-
-    // Request camera access for AR.js when the scene is loaded
     const sceneEl = document.querySelector('a-scene');
     if (sceneEl) {
       sceneEl.addEventListener('loaded', () => {
-        if (document.fullscreenEnabled && !document.fullscreenElement) {
+        enterFullscreen(); // Try to enter fullscreen when the scene is loaded
+      });
+
+      sceneEl.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
           enterFullscreen();
         }
       });
@@ -37,19 +34,13 @@ const ModelViewer = () => {
   };
 
   return (
-    <a-scene embedded arjs>
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: true;">
       <a-assets>
         <a-asset-item id="model" src="/models/cubo.glb"></a-asset-item>
       </a-assets>
 
       <a-marker preset="hiro">
-        <a-entity
-          gltf-model="#model"
-          scale="0.5 0.5 0.5"
-          onClick={handleTouch}
-          animation="property: rotation; to: 0 360 0; loop: true; dur: 5000"
-          position="0 0 0">
-        </a-entity>
+        <a-box position="0 0.5 0" material="color: green;" scale="0.5 0.5 0.5"></a-box>
       </a-marker>
 
       <a-camera-static></a-camera-static>
